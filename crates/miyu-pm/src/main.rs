@@ -14,7 +14,7 @@ use std::path::PathBuf;
 #[command(
     name = "miyu-pm",
     version,
-    about = "miyu third-party plugin / MCP package manager (M1 prototype)"
+    about = "miyu third-party plugin / MCP package manager"
 )]
 struct Cli {
     /// Override miyu home directory (default: ~/.miyu)
