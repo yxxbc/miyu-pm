@@ -8,6 +8,36 @@
 
 ---
 
+## ⚡ 在线安装
+
+一行命令安装到 `~/.local/bin`：
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/yxxbc/miyu-pm/main/install.sh | sh
+```
+
+验证：
+
+```bash
+miyu-pm --help
+```
+
+也可以指定安装目录 / 版本：
+
+```bash
+MIYU_PM_INSTALL_DIR="$HOME/bin" \
+curl -fsSL https://raw.githubusercontent.com/yxxbc/miyu-pm/main/install.sh | sh
+
+# 指定版本（不带 v）
+MIYU_PM_VERSION=0.1.0 \
+curl -fsSL https://raw.githubusercontent.com/yxxbc/miyu-pm/main/install.sh | sh
+```
+
+> 如果你已经安装了 Rust，也可以直接 `cargo install --path .` 或下载 GitHub
+> Release 里的 `miyu-pm-{version}-{os}-{arch}.tar.gz`。
+
+---
+
 ## ✨ 这是什么
 
 `miyu-pm` 是一个为 **miyu** 打造的第三方扩展包管理器，类似 `brew` / `yay`
