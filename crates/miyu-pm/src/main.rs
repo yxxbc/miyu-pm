@@ -14,9 +14,20 @@ use std::path::PathBuf;
 #[command(
     name = "miyu-pm",
     version,
+    disable_version_flag = true,
     about = "miyu third-party plugin / MCP package manager"
 )]
 struct Cli {
+    /// Print version
+    #[arg(
+        short = 'V',
+        visible_short_alias = 'v',
+        long = "version",
+        action = clap::ArgAction::Version,
+        help = "Print version"
+    )]
+    version: Option<bool>,
+
     /// Override miyu home directory (default: ~/.miyu)
     #[arg(long, global = true)]
     miyu_home: Option<PathBuf>,
@@ -25,7 +36,7 @@ struct Cli {
     #[arg(long, global = true)]
     pm_home: Option<PathBuf>,
 
-    /// Path to the registry index.json (default: ./registry/index.json)
+    /// Path to the registry index.json (default: local registry if present, otherwise the official online index)
     #[arg(long, global = true)]
     registry: Option<PathBuf>,
 
