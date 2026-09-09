@@ -933,6 +933,14 @@ pub fn audit(paths: &Paths, name: &str) -> Result<()> {
 
 pub fn self_update(paths: &Paths, opts: Options) -> Result<()> {
     println!("current miyu-pm v{}", env!("CARGO_PKG_VERSION"));
+    let is_official = paths
+        .registry
+        .file_name()
+        .and_then(|n| n.to_str())
+        == Some("official-index.json");
+    if is_official {
+        registry::refresh_default_registry(&paths.registry)?;
+    }
     let index = registry::load_registry(&paths.registry)?;
     let pkg = match registry::find_package(&index, "miyu-pm") {
         Some(p) => p,
