@@ -29,7 +29,7 @@ MIYU_PM_INSTALL_DIR="$HOME/bin" \
 curl -fsSL https://raw.githubusercontent.com/yxxbc/miyu-pm/main/install.sh | sh
 
 # 指定版本（不带 v）
-MIYU_PM_VERSION=0.1.8 \
+MIYU_PM_VERSION=0.1.9 \
 curl -fsSL https://raw.githubusercontent.com/yxxbc/miyu-pm/main/install.sh | sh
 ```
 
