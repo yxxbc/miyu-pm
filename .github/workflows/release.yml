@@ -50,6 +50,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Download assets
         uses: actions/download-artifact@v4
@@ -61,6 +63,21 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           FILES="$(find artifacts -name '*.tar.gz' -type f | sort)"
+          PREV_TAG="$(git describe --abbrev=0 --tags "${GITHUB_REF_NAME}^" 2>/dev/null || true)"
+          NOTES_FILE="$(mktemp)"
+          {
+            echo "## What changed"
+            echo ""
+            if [ -n "${PREV_TAG}" ]; then
+              git log --oneline --no-merges "${PREV_TAG}..${GITHUB_REF_NAME}" | sed 's/^/- /'
+            else
+              git log --oneline --no-merges "${GITHUB_REF_NAME}" | sed 's/^/- /' | head -50
+            fi
+            echo ""
+            echo "## Install"
+            echo ""
+            echo 'curl -fsSL https://raw.githubusercontent.com/yxxbc/miyu-pm/main/install.sh | sh'
+          } > "${NOTES_FILE}"
           gh release create "$GITHUB_REF_NAME" $FILES \
             --title "$GITHUB_REF_NAME" \
-            --generate-notes
+            --notes-file "${NOTES_FILE}"

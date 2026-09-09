@@ -64,6 +64,8 @@ enum Command {
         #[arg(long)]
         all: bool,
     },
+    /// Show packages that have a newer version available
+    Outdated,
     /// Install an mcp/skill/script package from the registry
     Install {
         name: String,
@@ -138,6 +140,7 @@ fn main() -> Result<()> {
         Command::Search { query } => actions::search(&paths, &query),
         Command::Info { name } => actions::info(&paths, &name),
         Command::List { all } => actions::list(&paths, all),
+        Command::Outdated => actions::outdated(&paths),
         Command::Install {
             name,
             repo,

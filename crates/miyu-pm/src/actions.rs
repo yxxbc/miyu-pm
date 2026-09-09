@@ -78,6 +78,32 @@ pub fn list(paths: &Paths, all: bool) -> Result<()> {
     Ok(())
 }
 
+pub fn outdated(paths: &Paths) -> Result<()> {
+    let index = registry::load_registry(&paths.registry)?;
+    let state = state::load_state(&paths.installed_state_file())?;
+    let mut outdated = Vec::new();
+    for installed in &state.installed {
+        let Some(remote) = registry::find_package(&index, &installed.name) else {
+            continue;
+        };
+        if installed.version != remote.version {
+            outdated.push((installed, remote));
+        }
+    }
+    if outdated.is_empty() {
+        println!("All packages are up to date.");
+        return Ok(());
+    }
+    println!("Outdated packages ({})", outdated.len());
+    for (installed, remote) in &outdated {
+        println!(
+            "  {}  {} -> {}",
+            installed.name, installed.version, remote.version
+        );
+    }
+    Ok(())
+}
+
 fn install_mcp(
     paths: &Paths,
     name: &str,
@@ -634,6 +660,16 @@ pub fn upgrade(paths: &Paths, names: &[String], no_setup: bool, opts: Options) -
         bail!("no matching installed packages to upgrade");
     }
 
+    println!("The following packages will be upgraded:");
+    for pkg in &targets {
+        if let Some(meta) = registry::find_package(&index, &pkg.name) {
+            println!("  {}  {} -> {}", pkg.name, pkg.version, meta.version);
+        } else {
+            println!("  {}  {} -> latest", pkg.name, pkg.version);
+        }
+    }
+    confirm_or_abort("Do you want to proceed with the upgrade?", opts.yes)?;
+
     for pkg in &targets {
         let meta = registry::find_package(&index, &pkg.name).cloned();
         match pkg.kind.as_str() {
@@ -651,10 +687,6 @@ pub fn upgrade(paths: &Paths, names: &[String], no_setup: bool, opts: Options) -
                     );
                     continue;
                 }
-                confirm_or_abort(
-                    &format!("Upgrade {} in {}?", pkg.name, dir.display()),
-                    opts.yes,
-                )?;
                 if opts.dry_run {
                     println!("[dry-run] would pull latest for {}", pkg.name);
                     continue;
@@ -690,10 +722,6 @@ pub fn upgrade(paths: &Paths, names: &[String], no_setup: bool, opts: Options) -
                 if !dir.exists() {
                     bail!("skill dir missing: {}", dir.display());
                 }
-                confirm_or_abort(
-                    &format!("Upgrade skill {} in {}?", pkg.name, dir.display()),
-                    opts.yes,
-                )?;
                 if opts.dry_run {
                     println!("[dry-run] would refresh skill {}", pkg.name);
                     continue;
@@ -720,7 +748,6 @@ pub fn upgrade(paths: &Paths, names: &[String], no_setup: bool, opts: Options) -
                     eprintln!("warning: {} has no recorded script files", pkg.name);
                     continue;
                 }
-                confirm_or_abort(&format!("Upgrade script package {}?", pkg.name), opts.yes)?;
                 if opts.dry_run {
                     println!("[dry-run] would refresh script package {}", pkg.name);
                     continue;
