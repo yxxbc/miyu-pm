@@ -35,6 +35,7 @@ fi
 
 case "$MODE" in
     install)
+        pmt_miyu update >/dev/null 2>&1 || true
         pmt_require_registry || exit 1
         rows="$(pmt_available_rows)"
         if [[ -z "$rows" ]]; then

@@ -43,8 +43,30 @@ pub fn info(paths: &Paths, name: &str) -> Result<()> {
     Ok(())
 }
 
-pub fn list(paths: &Paths, all: bool) -> Result<()> {
+pub fn list(paths: &Paths, all: bool, online: bool) -> Result<()> {
     let state = state::load_state(&paths.installed_state_file())?;
+    if online {
+        let is_official =
+            paths.registry.file_name().and_then(|n| n.to_str()) == Some("official-index.json");
+        if is_official {
+            registry::refresh_default_registry(&paths.registry)?;
+        }
+        let index = registry::load_registry(&paths.registry)?;
+        println!(
+            "Online packages ({}) from {}:",
+            index.packages.len(),
+            paths.registry.display()
+        );
+        for p in &index.packages {
+            let installed = state
+                .installed
+                .iter()
+                .any(|i| i.name.eq_ignore_ascii_case(&p.name));
+            let mark = if installed { "*" } else { " " };
+            print_package_entry(p, mark);
+        }
+        return Ok(());
+    }
     if all {
         let index = registry::load_registry(&paths.registry)?;
         println!("available packages ({}):", index.packages.len());
@@ -54,7 +76,7 @@ pub fn list(paths: &Paths, all: bool) -> Result<()> {
                 .iter()
                 .any(|i| i.name.eq_ignore_ascii_case(&p.name));
             let mark = if installed { "*" } else { " " };
-            println!("  {} {} ({})", mark, p.name, p.kind);
+            print_package_entry(p, mark);
         }
         return Ok(());
     }
@@ -76,6 +98,18 @@ pub fn list(paths: &Paths, all: bool) -> Result<()> {
         }
     }
     Ok(())
+}
+
+fn print_package_entry(p: &crate::types::PackageMeta, mark: &str) {
+    let display = p.display_name.as_deref().unwrap_or(&p.name);
+    println!("{} {} ({}) v{}", mark, p.name, p.kind, p.version);
+    println!("    {}", display);
+    if !p.description.is_empty() {
+        println!("    {}", p.description);
+    }
+    if let Some(repo) = &p.repo {
+        println!("    repo: {}", repo);
+    }
 }
 
 pub fn outdated(paths: &Paths) -> Result<()> {
@@ -933,11 +967,8 @@ pub fn audit(paths: &Paths, name: &str) -> Result<()> {
 
 pub fn self_update(paths: &Paths, opts: Options) -> Result<()> {
     println!("current miyu-pm v{}", env!("CARGO_PKG_VERSION"));
-    let is_official = paths
-        .registry
-        .file_name()
-        .and_then(|n| n.to_str())
-        == Some("official-index.json");
+    let is_official =
+        paths.registry.file_name().and_then(|n| n.to_str()) == Some("official-index.json");
     if is_official {
         registry::refresh_default_registry(&paths.registry)?;
     }

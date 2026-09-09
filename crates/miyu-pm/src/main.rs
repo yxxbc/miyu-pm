@@ -63,6 +63,9 @@ enum Command {
         /// Show all packages in the registry too
         #[arg(long)]
         all: bool,
+        /// Show online packages with descriptions (refreshes the official index)
+        #[arg(long)]
+        online: bool,
     },
     /// Show packages that have a newer version available
     Outdated,
@@ -139,7 +142,7 @@ fn main() -> Result<()> {
     match cli.command {
         Command::Search { query } => actions::search(&paths, &query),
         Command::Info { name } => actions::info(&paths, &name),
-        Command::List { all } => actions::list(&paths, all),
+        Command::List { all, online } => actions::list(&paths, all, online),
         Command::Outdated => actions::outdated(&paths),
         Command::Install {
             name,

@@ -122,6 +122,7 @@ pmt_selected_names() {
 pmt_available_rows() {
     jq -r '
         .packages[]
+        | select(.type == "mcp" or .type == "skill" or .type == "script")
         | [.name, ("[" + .type + "]"), ("v" + .version), (.display_name // "")]
         | @tsv
     ' "$PMT_REGISTRY"
