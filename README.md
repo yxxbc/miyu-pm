@@ -179,6 +179,24 @@ miyu-pm source remove official
 miyu-pm update
 ```
 
+### 官方没收录 / PR 一直没合并怎么办？
+
+参考 Homebrew 的 **tap** 思路：不要只依赖官方索引。
+
+1. fork `yxxbc/miyu-pm-index`（或自己建一个 index 仓库）；
+2. 把你的包手动加进 `index.json` / `packages/`，或放入 `miyu-package.yaml` 后让
+   你自己的 Actions 收录；
+3. 用户添加你的仓库作为 source 即可安装：
+
+```bash
+miyu-pm source add --name my-source \
+  https://raw.githubusercontent.com/<owner>/<repo>/main/index.json
+miyu-pm update
+miyu-pm install your-package
+```
+
+这样即使官方 PR 还没合并，别人也能通过你的个人源/组织源下载。
+
 ---
 
 ## 📁 项目结构
