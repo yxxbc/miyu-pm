@@ -1097,8 +1097,10 @@ pub fn self_update(paths: &Paths, opts: Options) -> Result<()> {
 
 pub fn tui(_paths: &Paths, args: &[String]) -> Result<()> {
     let script = find_tui_script()?;
+    let current_exe = std::env::current_exe().context("cannot locate current executable")?;
     let status = Command::new(&script)
         .args(args)
+        .env("MIYU_PM_BIN", &current_exe)
         .status()
         .with_context(|| format!("failed to run TUI script {}", script.display()))?;
     if !status.success() {
