@@ -28,19 +28,8 @@ impl Paths {
             .or_else(|| env::var_os("MIYU_PM_REGISTRY").map(PathBuf::from))
         {
             Some(path) => path,
-            None => {
-                let local = env::current_dir()
-                    .context("cannot determine current directory")?
-                    .join("registry")
-                    .join("index.json");
-                if local.exists() {
-                    local
-                } else {
-                    // Online-installed users usually don't have a local
-                    // registry; fall back to a cached copy of the official one.
-                    pm_home.join("cache").join("official-index.json")
-                }
-            }
+            // No explicit registry: always use the official online index cache.
+            None => pm_home.join("cache").join("official-index.json"),
         };
         Ok(Self {
             miyu_home,

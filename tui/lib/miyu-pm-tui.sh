@@ -36,9 +36,15 @@ if [[ -z "$PMT_BIN" || ! -x "$PMT_BIN" ]]; then
     return 1
 fi
 
-PMT_REGISTRY="${MIYU_PM_REGISTRY:-$PMT_ROOT/registry/index.json}"
 PMT_MIYU_HOME="${MIYU_PM_MIYU_HOME:-$HOME/.miyu}"
 PMT_PM_HOME="${MIYU_PM_PM_HOME:-$HOME/.miyu-pm}"
+if [[ -n "${MIYU_PM_REGISTRY:-}" ]]; then
+    PMT_REGISTRY="$MIYU_PM_REGISTRY"
+elif [[ -r "$PMT_ROOT/registry/index.json" ]]; then
+    PMT_REGISTRY="$PMT_ROOT/registry/index.json"
+else
+    PMT_REGISTRY="$PMT_PM_HOME/cache/official-index.json"
+fi
 PMT_STATE_FILE="${PMT_PM_HOME}/state/installed.json"
 PMT_NO_SETUP="${MIYU_PM_TUI_NO_SETUP:-0}"
 PMT_DRY_RUN="${MIYU_PM_TUI_DRY_RUN:-0}"

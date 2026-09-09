@@ -67,6 +67,13 @@ tar -xzf "${TMP_DIR}/${ASSET}" -C "${TMP_DIR}"
 mkdir -p "${INSTALL_DIR}"
 install -m 0755 "${TMP_DIR}/miyu-pm" "${INSTALL_DIR}/miyu-pm"
 
+SHARE_DIR="$(dirname "${INSTALL_DIR}")/share/miyu-pm"
+if [[ -d "${TMP_DIR}/tui" ]]; then
+    mkdir -p "${SHARE_DIR}"
+    cp -R "${TMP_DIR}/tui" "${SHARE_DIR}/"
+    echo "==> installed TUI to ${SHARE_DIR}/tui"
+fi
+
 echo "==> installed to ${INSTALL_DIR}/miyu-pm"
 echo "==> run: ${INSTALL_DIR}/miyu-pm --help"
 if ! echo "${PATH}" | grep -q "${INSTALL_DIR}"; then

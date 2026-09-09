@@ -30,13 +30,34 @@ jobs:
           if [ "$RUNNER_OS" = "macOS" ]; then OS=macos; else OS=linux; fi
           ARCH="$(uname -m)"
           [ "$ARCH" = "arm64" ] && ARCH="aarch64"
-          mkdir -p dist
+          mkdir -p dist/tui
           cp target/release/miyu-pm dist/miyu-pm
-          tar -C dist -czf "miyu-pm-${VERSION}-${OS}-${ARCH}.tar.gz" miyu-pm
-          echo "asset=miyu-pm-${VERSION}-${OS}-${ARCH}.tar.gz" >> "$GITHUB_ENV"
+          cp -R tui dist/tui
+          tar -C dist -czf "miyu-pm-${VERSION}-${OS}-${ARCH}.tar.gz" miyu-pm tui
 
-      - name: Publish release
-        uses: softprops/action-gh-release@v2
+      - name: Upload release asset
+        uses: actions/upload-artifact@v4
         with:
-          files: "miyu-pm-*.tar.gz"
-          generate_release_notes: true
+          name: asset-${{ matrix.platform }}
+          path: "miyu-pm-*.tar.gz"
+          if-no-files-found: error
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download assets
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          FILES="$(find artifacts -name '*.tar.gz' -type f | sort)"
+          gh release create "$GITHUB_REF_NAME" $FILES \
+            --title "$GITHUB_REF_NAME" \
+            --generate-notes

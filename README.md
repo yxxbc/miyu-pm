@@ -29,7 +29,7 @@ MIYU_PM_INSTALL_DIR="$HOME/bin" \
 curl -fsSL https://raw.githubusercontent.com/yxxbc/miyu-pm/main/install.sh | sh
 
 # 指定版本（不带 v）
-MIYU_PM_VERSION=0.1.3 \
+MIYU_PM_VERSION=0.1.4 \
 curl -fsSL https://raw.githubusercontent.com/yxxbc/miyu-pm/main/install.sh | sh
 ```
 
@@ -58,6 +58,16 @@ curl -fsSL https://raw.githubusercontent.com/yxxbc/miyu-pm/main/install.sh | sh
 |---|---|
 | [`yxxbc/miyu-pm`](https://github.com/yxxbc/miyu-pm) | 本仓库：CLI / TUI / 包管理器本体 |
 | [`yxxbc/miyu-pm-index`](https://github.com/yxxbc/miyu-pm-index) | 标准扩展索引仓库，也是本仓库的 `index/` submodule |
+
+---
+
+## 📖 插件作者
+
+想发布自己的 miyu 扩展？请看：
+
+- [📖 miyu-pm 插件作者指南](PACKAGE_AUTHOR_GUIDE.md)
+- 标准格式：`schemas/miyu-package.schema.json`
+- 在线包聚合列表：https://github.com/yxxbc/miyu-pm-index/blob/main/PACKAGES.md
 
 ---
 

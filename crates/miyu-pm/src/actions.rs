@@ -592,17 +592,24 @@ pub fn remove(paths: &Paths, name: &str, opts: Options) -> Result<()> {
 }
 
 pub fn update(paths: &Paths) -> Result<()> {
+    let is_official =
+        paths.registry.file_name().and_then(|n| n.to_str()) == Some("official-index.json");
+    if is_official {
+        registry::refresh_default_registry(&paths.registry)?;
+    }
     let index = registry::load_registry(&paths.registry)?;
-    let cache_dir = paths.cache_dir();
-    fs::create_dir_all(&cache_dir)?;
-    let cache_file = cache_dir.join("registry-index.json");
-    fs::write(&cache_file, serde_json::to_string_pretty(&index)?)?;
-    println!(
-        "registry updated: {} -> {} ({} packages)",
-        paths.registry.display(),
-        cache_file.display(),
-        index.packages.len()
-    );
+    if is_official {
+        println!(
+            "✓ official source updated ({} package(s))",
+            index.packages.len()
+        );
+    } else {
+        println!(
+            "✓ registry updated: {} ({} package(s))",
+            paths.registry.display(),
+            index.packages.len()
+        );
+    }
     crate::source::refresh_all(paths)?;
     Ok(())
 }
@@ -1059,6 +1066,49 @@ pub fn self_update(paths: &Paths, opts: Options) -> Result<()> {
     println!("updated miyu-pm to {}", tag);
     println!("restart miyu-pm to use the new version");
     Ok(())
+}
+
+pub fn tui(_paths: &Paths, args: &[String]) -> Result<()> {
+    let script = find_tui_script()?;
+    let status = Command::new(&script)
+        .args(args)
+        .status()
+        .with_context(|| format!("failed to run TUI script {}", script.display()))?;
+    if !status.success() {
+        std::process::exit(status.code().unwrap_or(1));
+    }
+    Ok(())
+}
+
+fn find_tui_script() -> Result<PathBuf> {
+    if let Some(script) = env::var_os("MIYU_PM_TUI_SCRIPT") {
+        let path = PathBuf::from(script);
+        if path.is_file() {
+            return Ok(path);
+        }
+    }
+    let exe = std::env::current_exe().context("cannot locate current executable")?;
+    let exe_dir = exe
+        .parent()
+        .ok_or_else(|| anyhow!("cannot determine executable directory"))?;
+    let candidates = [
+        // development layout: <repo>/target/debug/miyu-pm -> <repo>/tui/bin
+        exe_dir.join("../../tui/bin/miyu-pm-tui"),
+        // installed layout: ~/.local/bin/miyu-pm -> ~/.local/share/miyu-pm/tui/bin
+        exe_dir.join("../share/miyu-pm/tui/bin/miyu-pm-tui"),
+        // current directory layout
+        PathBuf::from("tui/bin/miyu-pm-tui"),
+    ];
+    for candidate in candidates {
+        if candidate.is_file() {
+            return Ok(candidate);
+        }
+    }
+    bail!(
+        "TUI script not found.\n\
+         Run miyu-pm from the source tree, set MIYU_PM_TUI_SCRIPT=/path/to/miyu-pm-tui, \
+         or reinstall with a release that bundles tui/"
+    );
 }
 
 fn ensure_m1_kind(pkg: &PackageMeta) -> Result<()> {

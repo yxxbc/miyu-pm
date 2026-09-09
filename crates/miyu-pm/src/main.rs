@@ -36,7 +36,7 @@ struct Cli {
     #[arg(long, global = true)]
     pm_home: Option<PathBuf>,
 
-    /// Path to the registry index.json (default: local registry if present, otherwise the official online index)
+    /// Path to the registry index.json (default: official online index cache)
     #[arg(long, global = true)]
     registry: Option<PathBuf>,
 
@@ -97,6 +97,12 @@ enum Command {
     Status,
     /// Update miyu-pm itself from a GitHub release
     SelfUpdate,
+    /// Launch the fzf TUI
+    Tui {
+        /// Optional TUI mode, e.g. remove
+        #[arg(trailing_var_arg = true, allow_hyphen_values = true)]
+        args: Vec<String>,
+    },
     /// Manage stored registry sources
     Source {
         #[command(subcommand)]
@@ -145,6 +151,7 @@ fn main() -> Result<()> {
         Command::Doctor => actions::doctor(&paths),
         Command::Status => actions::status(&paths),
         Command::SelfUpdate => actions::self_update(&paths, opts),
+        Command::Tui { args } => actions::tui(&paths, &args),
         Command::Source { action } => match action {
             SourceAction::List => source::list(&paths),
             SourceAction::Add { name, url } => source::add(&paths, name, url, opts),

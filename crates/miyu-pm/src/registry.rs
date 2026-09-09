@@ -40,6 +40,11 @@ fn fetch_default_registry(path: &Path) -> Result<()> {
     Ok(())
 }
 
+/// Force re-download the official online index to `path`.
+pub fn refresh_default_registry(path: &Path) -> Result<()> {
+    fetch_default_registry(path)
+}
+
 pub fn find_package<'a>(index: &'a RegistryIndex, name: &str) -> Option<&'a PackageMeta> {
     index
         .packages
