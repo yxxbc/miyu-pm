@@ -3,14 +3,41 @@ use crate::types::{PackageMeta, RegistryIndex};
 use anyhow::{Context, Result};
 use std::fs;
 use std::path::Path;
+use std::process::Command;
+
+const DEFAULT_INDEX_URL: &str =
+    "https://raw.githubusercontent.com/yxxbc/miyu-pm-index/main/index.json";
 
 pub fn load_registry(path: &Path) -> Result<RegistryIndex> {
+    if !path.exists() && path.file_name().and_then(|n| n.to_str()) == Some("official-index.json") {
+        fetch_default_registry(path)?;
+    }
     validate_registry_path(path)?;
     let raw = fs::read_to_string(path)
         .with_context(|| format!("failed to read registry {}", path.display()))?;
     let index: RegistryIndex = serde_json::from_str(&raw)
         .with_context(|| format!("invalid registry JSON {}", path.display()))?;
     Ok(index)
+}
+
+fn fetch_default_registry(path: &Path) -> Result<()> {
+    if let Some(parent) = path.parent() {
+        fs::create_dir_all(parent)?;
+    }
+    println!("fetching official miyu-pm index ...");
+    let status = Command::new("curl")
+        .args(["-fsSL", "--max-time", "30", "-o"])
+        .arg(path)
+        .arg(DEFAULT_INDEX_URL)
+        .status()
+        .with_context(|| format!("failed to fetch default registry {}", DEFAULT_INDEX_URL))?;
+    if !status.success() {
+        anyhow::bail!(
+            "failed to download official index from {}",
+            DEFAULT_INDEX_URL
+        );
+    }
+    Ok(())
 }
 
 pub fn find_package<'a>(index: &'a RegistryIndex, name: &str) -> Option<&'a PackageMeta> {
