@@ -6,7 +6,7 @@ use std::path::Path;
 use std::process::Command;
 
 const DEFAULT_INDEX_URL: &str =
-    "https://raw.githubusercontent.com/yxxbc/miyu-pm-index/main/index.json";
+    "https://api.github.com/repos/yxxbc/miyu-pm-index/contents/index.json";
 
 pub fn load_registry(path: &Path) -> Result<RegistryIndex> {
     if !path.exists() && path.file_name().and_then(|n| n.to_str()) == Some("official-index.json") {
@@ -26,7 +26,14 @@ fn fetch_default_registry(path: &Path) -> Result<()> {
     }
     println!("fetching official miyu-pm index ...");
     let status = Command::new("curl")
-        .args(["-fsSL", "--max-time", "30", "-o"])
+        .args([
+            "-fsSL",
+            "--max-time",
+            "30",
+            "-H",
+            "Accept: application/vnd.github.raw",
+            "-o",
+        ])
         .arg(path)
         .arg(DEFAULT_INDEX_URL)
         .status()
