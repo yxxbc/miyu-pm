@@ -17,7 +17,9 @@ miyu 扩展包，本地 CLI 负责安装、更新、删除、搜索与管理；T
 - ✅ TUI 核心原型（fzf + Bash，参考 shorin-pac）
 - ✅ M3：skill / script 包 installer 已实现并通过本地测试
 - ✅ M4：self-update + GitHub Release 自动发布工作流 + miyu-pm 自身 app 包
-- ⏳ M5 起尚未开始；index submodule 尚未实际创建（目前只有 registry-template 蓝本）
+- ✅ 远程仓库已创建：`yxxbc/miyu-pm` 与 `yxxbc/miyu-pm-index`
+- ✅ 主仓库 GitHub Actions CI 已通过；index 自动收录 PR 已跑通
+- ⏳ M5 起尚未开始；index 自动 PR #1 待你确认合并
 
 ## 一句话目标
 
@@ -42,7 +44,7 @@ miyu-pm/
 ├── crates/                # Rust workspace
 │   └── miyu-pm/           # CLI / 核心逻辑（M1 已实现）
 ├── tui/                   # fzf TUI 原型（Bash，调用 Rust CLI，M-TUI 已实现）
-├── index/                 # git submodule → github.com/yxxbc/miyu-pm-index（上线后）
+├── index/                 # git submodule → github.com/yxxbc/miyu-pm-index（已上线）
 ├── registry/
 │   └── index.json         # 本地 JSON 源（M1 用，含 4 个真实 MCP 包）
 ├── registry-template/     # M2 标准索引仓库模板（发布前先作为 index submodule 的蓝本）
