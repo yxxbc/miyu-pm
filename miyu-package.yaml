@@ -2,7 +2,7 @@ name: miyu-pm
 display_name: miyu-pm
 description: miyu third-party plugin / MCP package manager with CLI and fzf TUI.
 type: app
-version: 0.1.6
+version: 0.1.7
 license: MIT
 homepage: https://github.com/yxxbc/miyu-pm
 

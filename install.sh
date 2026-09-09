@@ -68,9 +68,17 @@ mkdir -p "${INSTALL_DIR}"
 install -m 0755 "${TMP_DIR}/miyu-pm" "${INSTALL_DIR}/miyu-pm"
 
 SHARE_DIR="$(dirname "${INSTALL_DIR}")/share/miyu-pm"
-if [[ -d "${TMP_DIR}/tui" ]]; then
+if [[ -d "${TMP_DIR}/tui/bin" ]]; then
+    TUI_SRC="${TMP_DIR}/tui"
+elif [[ -d "${TMP_DIR}/tui/tui/bin" ]]; then
+    # Compatibility with release assets that accidentally nested tui/tui.
+    TUI_SRC="${TMP_DIR}/tui/tui"
+else
+    TUI_SRC=""
+fi
+if [[ -n "${TUI_SRC}" ]]; then
     mkdir -p "${SHARE_DIR}"
-    cp -R "${TMP_DIR}/tui" "${SHARE_DIR}/"
+    cp -R "${TUI_SRC}" "${SHARE_DIR}/"
     echo "==> installed TUI to ${SHARE_DIR}/tui"
 fi
 

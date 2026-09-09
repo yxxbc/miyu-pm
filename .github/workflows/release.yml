@@ -30,7 +30,7 @@ jobs:
           if [ "$RUNNER_OS" = "macOS" ]; then OS=macos; else OS=linux; fi
           ARCH="$(uname -m)"
           [ "$ARCH" = "arm64" ] && ARCH="aarch64"
-          mkdir -p dist/tui
+          mkdir -p dist
           cp target/release/miyu-pm dist/miyu-pm
           cp -R tui dist/tui
           tar -C dist -czf "miyu-pm-${VERSION}-${OS}-${ARCH}.tar.gz" miyu-pm tui
