@@ -1,0 +1,3 @@
+[submodule "index"]
+	path = index
+	url = https://github.com/yxxbc/miyu-pm-index.git
