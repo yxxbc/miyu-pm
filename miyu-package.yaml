@@ -1,0 +1,17 @@
+name: miyu-pm
+display_name: miyu-pm
+description: miyu third-party plugin / MCP package manager with CLI and fzf TUI.
+type: app
+version: 0.1.0
+license: MIT
+homepage: https://github.com/miyu-packages/miyu-pm
+
+install:
+  method: release
+  runtime: binary
+  setup: []
+
+release:
+  provider: github
+  repo: miyu-packages/miyu-pm
+  asset_pattern: "miyu-pm-{version}-{os}-{arch}.tar.gz"

@@ -1,0 +1,8 @@
+target/
+.DS_Store
+*.tmp.*
+crates/miyu-pm/target/
+.venv/
+__pycache__/
+.pytest_cache/
+*.pyc

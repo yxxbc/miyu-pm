@@ -1,0 +1,17 @@
+[package]
+name = "miyu-pm"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "miyu third-party plugin / MCP package manager (M1 prototype)"
+
+[[bin]]
+name = "miyu-pm"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = "1"
+clap = { version = "4", features = ["derive", "env"] }
+json_comments = "0.2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"

@@ -1,0 +1,102 @@
+#!/usr/bin/env bash
+# miyu-pm TUI: fzf-based interactive package manager frontend.
+#
+# Usage:
+#   miyu-pm-tui            install packages (fuzzy multi-select)
+#   miyu-pm-tui remove     remove installed packages
+#   miyu-pm-tui update     refresh registry
+#   miyu-pm-tui doctor     check local state
+#   miyu-pm-tui status     show environment
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PMT_LIB="${SCRIPT_DIR}/../lib/miyu-pm-tui.sh"
+if [[ ! -r "$PMT_LIB" ]]; then
+    echo "miyu-pm TUI: lib not found: $PMT_LIB" >&2
+    exit 1
+fi
+# shellcheck source=../lib/miyu-pm-tui.sh
+source "$PMT_LIB"
+
+pmt_require || exit 1
+
+# Make helpers available to fzf preview shells.
+export PMT_BIN PMT_MIYU_HOME PMT_PM_HOME PMT_REGISTRY PMT_STATE_FILE
+export PMT_NO_SETUP PMT_DRY_RUN
+export -f pmt_miyu pmt_preview_cmd 2>/dev/null || true
+
+MODE="${1:-install}"
+if [[ "$MODE" == "add" || "$MODE" == "i" ]]; then
+    MODE="install"
+elif [[ "$MODE" == "uninstall" || "$MODE" == "r" ]]; then
+    MODE="remove"
+fi
+
+case "$MODE" in
+    install)
+        pmt_require_registry || exit 1
+        rows="$(pmt_available_rows)"
+        if [[ -z "$rows" ]]; then
+            pmt_err "no packages found in registry"
+            exit 1
+        fi
+        selected="$(
+            printf '%s\n' "$rows" |
+                pmt_fzf_base "Install | Enter: confirm  Tab: multi-select  Ctrl+A: all  Ctrl+D: none" \
+                    --preview 'name=$(printf "%s" {} | cut -f1); "$PMT_BIN" --miyu-home "$PMT_MIYU_HOME" --pm-home "$PMT_PM_HOME" --registry "$PMT_REGISTRY" info "$name" 2>&1; echo; echo "--- audit preview ---"; "$PMT_BIN" --miyu-home "$PMT_MIYU_HOME" --pm-home "$PMT_PM_HOME" --registry "$PMT_REGISTRY" audit "$name" 2>&1'
+        )" || exit 0
+        if [[ -z "$selected" ]]; then
+            exit 0
+        fi
+        names="$(printf '%s\n' "$selected" | pmt_selected_names)"
+        while IFS= read -r name; do
+            [[ -n "$name" ]] || continue
+            echo ""
+            echo ">>> install ${name}"
+            # shellcheck disable=SC2046
+            pmt_miyu --yes install "$name" $(pmt_install_extra_args)
+        done <<< "$names"
+        ;;
+
+    remove)
+        rows="$(pmt_installed_rows)"
+        if [[ -z "$rows" ]]; then
+            pmt_err "no installed packages"
+            exit 1
+        fi
+        selected="$(
+            printf '%s\n' "$rows" |
+                pmt_fzf_base "Remove | Enter: confirm  Tab: multi-select  Ctrl+A: all  Ctrl+D: none" \
+                    --preview 'name=$(printf "%s" {} | cut -f1); "$PMT_BIN" --miyu-home "$PMT_MIYU_HOME" --pm-home "$PMT_PM_HOME" --registry "$PMT_REGISTRY" info "$name" 2>&1'
+        )" || exit 0
+        if [[ -z "$selected" ]]; then
+            exit 0
+        fi
+        names="$(printf '%s\n' "$selected" | pmt_selected_names)"
+        while IFS= read -r name; do
+            [[ -n "$name" ]] || continue
+            echo ""
+            echo ">>> remove ${name}"
+            pmt_miyu --yes remove "$name"
+        done <<< "$names"
+        ;;
+
+    update)
+        pmt_miyu update
+        ;;
+
+    doctor)
+        pmt_miyu doctor
+        ;;
+
+    status)
+        pmt_miyu status
+        ;;
+
+    *)
+        echo "miyu-pm TUI: unknown mode '$MODE'" >&2
+        echo "modes: install (default), remove, update, doctor, status" >&2
+        exit 2
+        ;;
+esac

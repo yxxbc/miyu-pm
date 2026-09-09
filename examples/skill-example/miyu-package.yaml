@@ -1,0 +1,20 @@
+# Generic skill package example (not a real published package).
+name: example-skill
+display_name: 示例 Skill
+description: A minimal skill package example for the miyu-pm registry.
+type: skill
+version: 0.1.0
+license: MIT
+homepage: https://github.com/example/example-skill
+topics:
+  - miyu-package
+
+install:
+  method: git
+  runtime: none
+  setup: []
+
+skill:
+  entry: SKILL.md
+  files:
+    - "**"

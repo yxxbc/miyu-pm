@@ -1,0 +1,33 @@
+# Generic script package example (not a real published package).
+name: example-script
+display_name: Example Script Tool
+description: A minimal script package example for the miyu-pm registry.
+type: script
+version: 0.1.0
+license: MIT
+homepage: https://github.com/example/example-script
+topics:
+  - miyu-package
+
+install:
+  method: git
+  runtime: python
+  setup: []
+
+script:
+  files:
+    - tool.py
+  id: example_tool
+  display_name: Example Tool
+  description: Run an example script tool.
+  timeout_seconds: 120
+  group: utility
+  argv: none
+  parameters:
+    type: object
+    properties:
+      query:
+        type: string
+        description: What to look up.
+    required:
+      - query
