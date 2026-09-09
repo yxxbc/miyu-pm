@@ -1,134 +1,205 @@
-# miyu-pm
+# 🚀 miyu-pm
 
-> miyu 三方插件 / MCP 包管理器（设计方案阶段）
+> miyu 第三方插件 / MCP 包管理器 · CLI + TUI
 
-对标 `brew` / `yay` / `skills`：通过一个公开 GitHub 标准仓库收录 GitHub 上的
-miyu 扩展包，本地 CLI 负责安装、更新、删除、搜索与管理；TUI 作为另一个交互前端，
-与 CLI 共用同一套核心逻辑，互不冲突。
+[![CI](https://github.com/yxxbc/miyu-pm/actions/workflows/ci.yml/badge.svg)](https://github.com/yxxbc/miyu-pm/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/yxxbc/miyu-pm?include_prereleases&label=release)](https://github.com/yxxbc/miyu-pm/releases)
+[![License: MIT](https://img.shields.io/github/license/yxxbc/miyu-pm)](LICENSE)
 
-## 当前状态
+---
 
-- ✅ 已完成本地 miyu 结构调研
-- ✅ 已确认需求方向与关键设计决策
-- 📄 完整设计见 [`docs/DESIGN.md`](docs/DESIGN.md)
-- ✅ M0：`miyu-package.yaml` JSON Schema 与示例已生成并通过校验
-- ✅ M1：Rust CLI 最小闭环已实现并通过本地冒烟测试
-- ✅ M2：GitHub 自动收录索引仓库模板 + CLI source 管理已实现
-- ✅ TUI 核心原型（fzf + Bash，参考 shorin-pac）
-- ✅ M3：skill / script 包 installer 已实现并通过本地测试
-- ✅ M4：self-update + GitHub Release 自动发布工作流 + miyu-pm 自身 app 包
-- ✅ 远程仓库已创建：`yxxbc/miyu-pm` 与 `yxxbc/miyu-pm-index`
-- ✅ 主仓库 GitHub Actions CI 已通过；index 自动收录 PR 已跑通
-- ⏳ M5 起尚未开始；index 自动 PR #1 待你确认合并
+## ✨ 这是什么
 
-## 一句话目标
+`miyu-pm` 是一个为 **miyu** 打造的第三方扩展包管理器，类似 `brew` / `yay`
+之于系统软件包。它帮你：
 
-```
-GitHub 插件仓库（带 miyu-package.yaml）
-   ↓  GitHub Actions 定时扫描、校验、标准化
-公开索引仓库（index.json）
-   ↓  miyu-pm update
-本地 CLI 安装/更新/删除到 ~/.miyu
-```
+- 🔍 搜索 / 查看 GitHub 上可用的 miyu 扩展；
+- 📦 一键安装 **MCP server**、**Skill**、**Script 工具**；
+- ♻️ 更新、升级、卸载已安装的扩展；
+- 🛡️ 安装前展示静态安全审查信息；
+- 🖥️ 提供 CLI 与 fzf TUI 两种使用方式；
+- 📡 通过 GitHub Actions 自动收录社区扩展并自动开 PR。
 
-## 目录规划（未来）
+---
 
-```
-miyu-pm/
-├── README.md
-├── docs/
-│   └── DESIGN.md          # 完整设计方案
-├── schemas/
-│   └── miyu-package.schema.json   # 包描述文件规范
-├── examples/                      # 示例 manifest（含 4 个真实 MCP 仓库）
-├── crates/                # Rust workspace
-│   └── miyu-pm/           # CLI / 核心逻辑（M1 已实现）
-├── tui/                   # fzf TUI 原型（Bash，调用 Rust CLI，M-TUI 已实现）
-├── index/                 # git submodule → github.com/yxxbc/miyu-pm-index（已上线）
-├── registry/
-│   └── index.json         # 本地 JSON 源（M1 用，含 4 个真实 MCP 包）
-├── registry-template/     # M2 标准索引仓库模板（发布前先作为 index submodule 的蓝本）
-└── .github/
-    └── workflows/collect.yml  # 自动收录工作流模板
-```
+## 🗂 仓库组成
 
-## M1 快速使用
+| 仓库 | 说明 |
+|---|---|
+| [`yxxbc/miyu-pm`](https://github.com/yxxbc/miyu-pm) | 本仓库：CLI / TUI / 包管理器本体 |
+| [`yxxbc/miyu-pm-index`](https://github.com/yxxbc/miyu-pm-index) | 标准扩展索引仓库，也是本仓库的 `index/` submodule |
+
+---
+
+## ✅ 功能一览
+
+### CLI
+
+| 命令 | 说明 |
+|---|---|
+| `miyu-pm search <关键词>` | 搜索远程索引中的包 |
+| `miyu-pm info <包名>` | 查看包详情 |
+| `miyu-pm install <包名>` | 安装 MCP / Skill / Script 包 |
+| `miyu-pm remove <包名>` | 卸载包 |
+| `miyu-pm list` | 查看已安装包 |
+| `miyu-pm list --all` | 查看索引内全部包 |
+| `miyu-pm update` | 更新本地索引 / source 缓存 |
+| `miyu-pm upgrade` | 升级已安装包 |
+| `miyu-pm audit <包名>` | 静态安全审查 |
+| `miyu-pm doctor` | 检查本地状态 |
+| `miyu-pm self-update` | 更新 miyu-pm 自身 |
+| `miyu-pm source list/add/remove` | 管理扩展源 |
+
+### TUI
 
 ```bash
-# 构建
+./tui/bin/miyu-pm-tui           # 交互式安装
+./tui/bin/miyu-pm-tui remove    # 交互式卸载
+```
+
+右侧实时预览 `info` + `audit`，支持 `Tab` 多选、`Ctrl+A` 全选。
+
+---
+
+## 📦 支持的包类型
+
+| 类型 | 安装到 | 说明 |
+|---|---|---|
+| `mcp` | `~/.miyu/mcp-servers/<id>/` | MCP Server，并注册到 `config.jsonc` |
+| `skill` | `~/.miyu/data/skills/<name>/` | miyu Skill 包 |
+| `script` | `~/.miyu/data/scripts/` | miyu 脚本工具 |
+| `app` | 自身更新用 | `miyu-pm self-update` 专用类型 |
+| `plugin` | 预留 | 等待 miyu 动态插件能力 |
+
+---
+
+## 🛠 构建
+
+需要 **Rust 1.85+**。
+
+```bash
 cargo build --release
-
-# 本地状态查看（默认会把真实 ~/.miyu 作为 miyu home，请小心）
-target/debug/miyu-pm --registry registry/index.json status
-target/debug/miyu-pm --registry registry/index.json search netease
-target/debug/miyu-pm --registry registry/index.json info mi-fitness
-target/debug/miyu-pm --registry registry/index.json audit bili-summary
-
-# 试运行/真实安装到隔离环境：
-target/debug/miyu-pm --miyu-home /tmp/demo-home --pm-home /tmp/demo-pm \
-  --registry registry/index.json --dry-run install open-watch-cinema
-
-# 注意：安装/升级/删除会读写 miyu 的 config.jsonc 与 mcp-servers，
-# 每次写入前会自动备份到 ~/.miyu/config/.miyu-pm-backups/。
 ```
 
-M1/M3 当前支持 `mcp` / `skill` / `script` 三种类型；`plugin` 的 installer 在
-M7 实现。
-
-## M2 快速使用
-
-```bash
-# 本地生成索引（用示例 manifest 测试 collector）
-python3 -m venv /tmp/miyu-pm-collect
-/tmp/miyu-pm-collect/bin/pip install -r registry-template/tools/requirements.txt
-/tmp/miyu-pm-collect/bin/python registry-template/tools/collect.py \
-  --schema registry-template/schemas/miyu-package.schema.json \
-  --out /tmp/miyu-index-out \
-  --local examples/bili-summary examples/mi-fitness-mcp \
-          examples/netease-listen-together-mcp examples/open-watch-cinema \
-          examples/skill-example examples/script-example
-
-# source 管理
-target/debug/miyu-pm source list
-target/debug/miyu-pm source add --name demo /tmp/miyu-index-out/index.json
-target/debug/miyu-pm source remove demo
-```
-
-标准索引仓库模板在 `registry-template/`，复制到
-`github.com/yxxbc/miyu-pm-index` 后，仓库自带的
-`.github/workflows/collect.yml` 会每天定时扫描仓库名以 `miyu-pm` 开头的
-仓库、按 `miyu-package.yaml` 审核并生成索引，然后**自动创建 PR**由你确认合并。
-
-## TUI 快速使用
-
-```bash
-cargo build
-
-# 安装包：fzf 多选，右侧预览 info + audit
-./tui/bin/miyu-pm-tui
-
-# 卸载包
-./tui/bin/miyu-pm-tui remove
-
-# 其他模式
-./tui/bin/miyu-pm-tui update
-./tui/bin/miyu-pm-tui doctor
-./tui/bin/miyu-pm-tui status
-```
-
-## M4 快速使用
-
-```bash
-# 查看自身更新（当前本地 registry 没有 miyu-pm 包时会提示未发布）
-target/debug/miyu-pm self-update
-
-# 发布流程：打 tag 后 GitHub Actions 会自动构建 release 资产
-git tag v0.2.0
-git push origin v0.2.0
-```
-
-`miyu-package.yaml` 已声明 `miyu-pm` 自身为 `type: app`，release 资产命名：
+生成二进制：
 
 ```text
-miyu-pm-{version}-{os}-{arch}.tar.gz
+target/release/miyu-pm
 ```
+
+---
+
+## 🚦 快速开始
+
+### 1. 查看状态
+
+```bash
+miyu-pm status
+```
+
+### 2. 搜索可用扩展
+
+```bash
+miyu-pm search bilibili
+miyu-pm search netease
+```
+
+### 3. 安装扩展
+
+```bash
+# 安装 MCP 包
+miyu-pm install bili-summary
+
+# 安装 Skill / Script 包（M3 起支持）
+miyu-pm install some-skill
+miyu-pm install some-script
+
+# 跳过依赖 setup，仅复制文件
+miyu-pm install some-package --no-setup
+```
+
+> 安装会修改 `~/.miyu`，每次写入 `config.jsonc` 前会自动备份。
+
+### 4. 卸载
+
+```bash
+miyu-pm remove bili-summary
+```
+
+### 5. 使用 TUI
+
+```bash
+./tui/bin/miyu-pm-tui
+```
+
+---
+
+## 🔌 添加官方 / 自定义索引
+
+```bash
+# 添加线上官方索引
+miyu-pm source add --name official \
+  https://raw.githubusercontent.com/yxxbc/miyu-pm-index/main/index.json
+
+# 查看 / 删除源
+miyu-pm source list
+miyu-pm source remove official
+
+# 更新索引缓存
+miyu-pm update
+```
+
+---
+
+## 📁 项目结构
+
+```text
+miyu-pm/
+├── crates/miyu-pm/          # Rust CLI 主程序
+├── tui/                     # fzf TUI 前端
+├── registry-template/       # 索引仓库模板（yxxbc/miyu-pm-index 蓝本）
+├── index/                   # yxxbc/miyu-pm-index submodule
+├── schemas/                 # miyu-package.yaml JSON Schema
+├── examples/                # 示例 manifest
+├── .github/workflows/       # CI + Release
+└── miyu-package.yaml        # miyu-pm 自身发布描述
+```
+
+---
+
+## 🧪 开发状态
+
+| 里程碑 | 状态 |
+|---|---|
+| M0 包格式 Schema + 示例 | ✅ |
+| M1 CLI 最小闭环 | ✅ |
+| M2 GitHub 自动收录模板 + source | ✅ |
+| M3 Skill / Script installer | ✅ |
+| M4 self-update + Release 工作流 | ✅ |
+| TUI fzf 原型 | ✅ |
+| M5+ 社区安全分析 / 动态插件 | ⏳ 规划中 |
+
+---
+
+## 🧑‍💻 开发
+
+```bash
+# 格式化
+cargo fmt
+
+# 构建 debug
+cargo build
+
+# 在隔离环境试运行（不碰真实 ~/.miyu）
+target/debug/miyu-pm \
+  --miyu-home /tmp/demo-home \
+  --pm-home /tmp/demo-pm \
+  --registry registry/index.json \
+  status
+```
+
+---
+
+## 📄 License
+
+[MIT](LICENSE)
