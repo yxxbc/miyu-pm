@@ -1,9 +1,9 @@
-# miyu-packages/index template
+# yxxbc/miyu-pm-index template
 
 这是 miyu-pm 的**标准索引仓库模板**，目标发布到：
 
 ```text
-https://github.com/miyu-packages/index
+https://github.com/yxxbc/miyu-pm-index
 ```
 
 ## 结构

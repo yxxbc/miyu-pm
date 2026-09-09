@@ -42,7 +42,7 @@ miyu-pm/
 ├── crates/                # Rust workspace
 │   └── miyu-pm/           # CLI / 核心逻辑（M1 已实现）
 ├── tui/                   # fzf TUI 原型（Bash，调用 Rust CLI，M-TUI 已实现）
-├── index/                 # git submodule → github.com/miyu-packages/index（上线后）
+├── index/                 # git submodule → github.com/yxxbc/miyu-pm-index（上线后）
 ├── registry/
 │   └── index.json         # 本地 JSON 源（M1 用，含 4 个真实 MCP 包）
 ├── registry-template/     # M2 标准索引仓库模板（发布前先作为 index submodule 的蓝本）
@@ -93,7 +93,7 @@ target/debug/miyu-pm source remove demo
 ```
 
 标准索引仓库模板在 `registry-template/`，复制到
-`github.com/miyu-packages/index` 后，仓库自带的
+`github.com/yxxbc/miyu-pm-index` 后，仓库自带的
 `.github/workflows/collect.yml` 会每天定时扫描仓库名以 `miyu-pm` 开头的
 仓库、按 `miyu-package.yaml` 审核并生成索引，然后**自动创建 PR**由你确认合并。
 

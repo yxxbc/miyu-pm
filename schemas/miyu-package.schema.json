@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/miyu-packages/miyu-pm/schemas/miyu-package.schema.json",
+  "$id": "https://github.com/yxxbc/miyu-pm/schemas/miyu-package.schema.json",
   "title": "miyu-package",
   "description": "Schema for miyu-package.yaml, the package descriptor used by the miyu-pm registry.",
   "type": "object",

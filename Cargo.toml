@@ -6,4 +6,4 @@ members = ["crates/miyu-pm"]
 version = "0.1.0"
 edition = "2021"
 license = "MIT"
-authors = ["miyu-packages"]
+authors = ["miyu-pm contributors"]

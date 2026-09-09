@@ -62,7 +62,7 @@ installer 里新增一个 `plugin` 后端，并补充 miyu 上游约定的加载
 ```text
 ┌────────────────────────────── GitHub ──────────────────────────────┐
 │                                                                     │
-│  插件仓库（第三方）                标准索引仓库（miyu-packages）      │
+│  插件仓库（第三方）                标准索引仓库（yxxbc/miyu-pm-index）│
 │  ┌──────────────────┐             ┌──────────────────────────────┐  │
 │  │ miyu-package.yaml│             │ .github/workflows/collect.yml│  │
 │  │ 代码 / SKILL.md   │             │ index.json                   │  │
@@ -113,11 +113,11 @@ shorin-pac 可借鉴的点：
 
 ### 2.2 标准索引仓库与主仓库的关系
 
-`github.com/miyu-packages/index` 作为 **git submodule** 挂在
+`github.com/yxxbc/miyu-pm-index` 作为 **git submodule** 挂在
 `miyu-pm` 仓库下（如 `index/` 目录）。这样在 GitHub 网页上：
 
 - `miyu-pm` 仓库可以看到 `index/` 目录及其文件；
-- 点击该目录会跳转到 `github.com/miyu-packages/index` 对应仓库。
+- 点击该目录会跳转到 `github.com/yxxbc/miyu-pm-index` 对应仓库。
 
 这就是通常说的 **git submodule（子模块 / 子仓库）**。`registry-template/`
 是 index 仓库上线前的模板蓝本；正式创建 index 仓库后，把模板内容推送到
@@ -259,11 +259,11 @@ MCP 的 `command`/`args` 支持以下占位符，由 `miyu-pm` 在安装时替�
 
 | 仓库 | 用途 |
 |---|---|
-| `github.com/miyu-packages/miyu-pm` | `miyu-pm` CLI/TUI 主仓库 |
-| `github.com/miyu-packages/index` | 标准索引仓库（默认源，作为 miyu-pm 的 git submodule） |
+| `github.com/yxxbc/miyu-pm` | `miyu-pm` CLI/TUI 主仓库 |
+| `github.com/yxxbc/miyu-pm-index` | 标准索引仓库（默认源，作为 miyu-pm 的 git submodule） |
 
 ```
-miyu-packages/index/
+yxxbc/miyu-pm-index/
 ├── .github/workflows/collect.yml
 ├── index.json
 ├── security/            # 社区 miyu 安全分析报告聚合
@@ -429,7 +429,7 @@ security:
    miyu-pm report submit bili-summary report.json
    ```
 
-5. 回传以 **PR 或结构化 issue** 进入 `miyu-packages/index` 的
+5. 回传以 **PR 或结构化 issue** 进入 `yxxbc/miyu-pm-index` 的
    `security/reviews/<package>/<reviewer>.json`；
 6. Actions 定时聚合，把 `total / positive / negative / latest` 写回索引；
 7. 后续别人安装该包时，`miyu-pm install` 会展示社区分析汇总；有较多负面
@@ -541,7 +541,7 @@ security:
       "name": "bili-summary",
       "type": "mcp",
       "version": "1.0.0",
-      "source": "https://github.com/miyu-packages/index",
+      "source": "https://github.com/yxxbc/miyu-pm-index",
       "repo": "https://github.com/yxxbc/Bili-Summary",
       "commit": "0123abcd...",
       "installed_at": "2026-09-09T12:00:00+08:00",
@@ -732,7 +732,7 @@ release:
 - [x] `miyu-pm` 自身进入索引（根目录 `miyu-package.yaml`，`type: app`）
 
 > M4 状态：self-update 命令与 release 工作流已实现；实际发布需要真实
-> `github.com/miyu-packages/miyu-pm` 仓库和 tag。
+> `github.com/yxxbc/miyu-pm` 仓库和 tag。
 
 ### M5：社区 miyu 自动安全分析
 
@@ -762,8 +762,8 @@ release:
 
 已决定 / 已明确：
 
-- 仓库命名：先按 `github.com/miyu-packages/miyu-pm` 与
-  `github.com/miyu-packages/index`，发布前如撞名再改；
+- 仓库命名：先按 `github.com/yxxbc/miyu-pm` 与
+  `github.com/yxxbc/miyu-pm-index`，发布前如撞名再改；
 - 安全模式：自动收录 + 社区 miyu 自动分析，不设人工“官方审核”门槛；
 - 配置写入：推动 miyu 上游新增官方子命令，第一版先用备份 + JSONC 兼容。
 
